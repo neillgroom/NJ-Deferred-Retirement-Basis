@@ -1,4 +1,0 @@
-{
-  "summary":  "Lightweight, zero-dependency Python local server backend using only standard libraries. Serves frontend assets, acts as a JSON REST API for transaction storage, runs calculations on the server, and automatically launches the user's web browser.",
-  "updatedAt":  "2026-06-29T23:02:22.014991700Z"
-}

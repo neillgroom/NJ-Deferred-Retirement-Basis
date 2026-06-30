@@ -1,4 +1,0 @@
-{
-  "summary":  "Standard gitignore configuration for the desktop basis tracker repository, ignoring Python bytecodes, cache directories, and local user ledger data.",
-  "updatedAt":  "2026-06-30T00:43:31.991580400Z"
-}
