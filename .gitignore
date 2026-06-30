@@ -1,0 +1,20 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints
+
+# Environment
+.venv/
+env/
+venv/
+ENV/
+
+# Local database/data files
+basis_ledger_data.json
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

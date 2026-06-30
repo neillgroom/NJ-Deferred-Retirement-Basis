@@ -1,0 +1,4 @@
+{
+  "summary":  "JavaScript logic for the local desktop basis tracker app. Implements calculations for NJ (pro-rata Worksheet C), PA (FIFO Cost Recovery), and MA (pro-rata Traditional IRA). Binds forms, switches state rules dynamically, and handles CSV importing/exporting.",
+  "updatedAt":  "2026-06-29T23:02:40.850476800Z"
+}

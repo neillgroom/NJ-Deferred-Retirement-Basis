@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retirement Basis Tracker & Triage Dashboard</title>
+    <!-- Use Outfit and Inter fonts for a modern look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="app.css">
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-container">
+            <div class="logo-area">
+                <span class="logo-icon">📊</span>
+                <div>
+                    <h1>Retirement Basis Tracker</h1>
+                    <p class="subtitle">State Tax Basis Recovery & Triage Suite</p>
+                </div>
+            </div>
+            <div class="account-selector-wrapper">
+                <label for="account-select">Active Portfolio Account:</label>
+                <div class="selector-controls">
+                    <select id="account-select">
+                        <option value="" disabled selected>Select or create an account...</option>
+                    </select>
+                    <button id="btn-new-account" class="btn btn-secondary">New Account</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="app-main-layout">
+        <!-- Left Column: Forms & Controls -->
+        <section class="control-panel">
+            <!-- Account Creation Modal/Card -->
+            <div id="new-account-card" class="card hidden">
+                <h3 class="card-title">Create New Account</h3>
+                <div class="form-group">
+                    <label for="new-account-name">Account Name:</label>
+                    <input type="text" id="new-account-name" placeholder="e.g., Vanguard Traditional IRA">
+                </div>
+                <div class="form-group">
+                    <label for="new-account-type">Plan Type:</label>
+                    <select id="new-account-type">
+                        <option value="IRA">Traditional IRA</option>
+                        <option value="403B">403(b) Plan</option>
+                        <option value="457B">457(b) Plan</option>
+                        <option value="SEP_IRA">SEP IRA</option>
+                        <option value="SIMPLE_IRA">SIMPLE IRA</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button id="btn-save-account" class="btn btn-primary">Create</button>
+                    <button id="btn-cancel-account" class="btn btn-text">Cancel</button>
+                </div>
+            </div>
+
+            <!-- Transaction Input Card -->
+            <div class="card">
+                <h3 class="card-title">Log Contribution / Withdrawal</h3>
+                <form id="transaction-form">
+                    <div class="form-row">
+                        <div class="form-group half-width">
+                            <label for="tx-type">Action Type:</label>
+                            <select id="tx-type">
+                                <option value="contribution">Contribution (Basis Add)</option>
+                                <option value="withdrawal">Withdrawal (Distribution)</option>
+                            </select>
+                        </div>
+                        <div class="form-group half-width">
+                            <label for="tx-year">Tax Year:</label>
+                            <input type="number" id="tx-year" min="1970" max="2035" placeholder="YYYY">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group half-width">
+                            <label for="tx-amount">Transaction Amount ($):</label>
+                            <input type="number" id="tx-amount" min="0" step="0.01" placeholder="0.00">
+                        </div>
+                        <div id="dec31-group" class="form-group half-width hidden">
+                            <label for="tx-dec31">Dec 31 Account Value ($):</label>
+                            <input type="number" id="tx-dec31" min="0" step="0.01" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="tx-note">Note / Source Document Reference:</label>
+                        <input type="text" id="tx-note" placeholder="e.g., Form 5498 Box 1, SSA Transcript">
+                    </div>
+                    <button type="submit" id="btn-add-tx" class="btn btn-primary btn-block">Add Transaction Record</button>
+                </form>
+            </div>
+
+            <!-- Smart Document & Transcript Parser Card -->
+            <div class="card">
+                <h3 class="card-title text-indigo">⚡ Smart Document & Transcript Parser</h3>
+                <p class="help-text">Drop a file or paste text from a W-2, Form 5498, Form 1099-R, or IRS Transcript to extract basis figures automatically.</p>
+                <div class="form-group">
+                    <div id="dropzone" class="dropzone">
+                        <span class="dropzone-icon">📄</span>
+                        <span class="dropzone-text">Drag & drop tax PDF/text file here</span>
+                        <input type="file" id="file-input" class="hidden" accept=".txt,.csv,.pdf">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="paste-text">Or paste document/transcript text directly:</label>
+                    <textarea id="paste-text" placeholder="Paste W-2, 5498, or IRS Transcript text here..."></textarea>
+                </div>
+                <div id="parser-result" class="parser-result hidden">
+                    <!-- Results dynamically rendered here -->
+                </div>
+                <button id="btn-parse-text" class="btn btn-secondary btn-block">Parse Text & Autofill Form</button>
+            </div>
+
+            <!-- CSV Import / Export Card -->
+            <div class="card">
+                <h3 class="card-title">Excel & Google Sheets Integration</h3>
+                <div class="integration-actions">
+                    <div class="export-section">
+                        <h4>Export Completed Ledger</h4>
+                        <button id="btn-export-csv" class="btn btn-secondary btn-block">Download CSV Report</button>
+                    </div>
+                    <hr class="divider">
+                    <div class="import-section">
+                        <h4>Import Historical Contributions</h4>
+                        <p class="help-text">CSV format: <code>Year, Amount, Note</code> (headers required)</p>
+                        <textarea id="import-csv-text" placeholder="Year,Amount,Note&#10;2018,6000,Year-end Statement&#10;2019,6000,Form 5498"></textarea>
+                        <button id="btn-import-csv" class="btn btn-secondary btn-block">Import Contributions</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Triage Assistance Reference -->
+            <div class="card triage-card">
+                <h3 class="card-title text-indigo">📋 Recovery Triage Guide</h3>
+                <p>Missing W-2 forms? Use this recovery triage matrix to find equivalent basis records:</p>
+                <div class="triage-steps">
+                    <div class="triage-step">
+                        <div class="triage-badge">Level 1</div>
+                        <div>
+                            <strong>Wage Differential:</strong> Compare Wages from <code>NJ-1040 Line 15</code> (or <code>PA-40 Line 1</code>) with <code>Federal 1040 Line 1</code>. The difference represents state-taxed pre-tax deferrals (Box 12 codes).
+                        </div>
+                    </div>
+                    <div class="triage-step">
+                        <div class="triage-badge">Level 2</div>
+                        <div>
+                            <strong>Medicare Wage Proxy:</strong> Pull IRS Wage/Income Transcripts. Calculate <code>Medicare Wages (Box 5) - Federal wages (Box 1)</code>. Medicare wages serve as a reliable state wage proxy.
+                        </div>
+                    </div>
+                    <div class="triage-step">
+                        <div class="triage-badge">Level 3</div>
+                        <div>
+                            <strong>Custodian Request:</strong> Query the broker/custodian for a "Participant Contribution Ledger" to isolate lifetime employee pre-tax deferrals.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Column: Results & Interactive calculations -->
+        <section class="display-panel">
+            <!-- Summary Dashboard Widgets -->
+            <div class="dashboard-row">
+                <div class="widget-card">
+                    <span class="widget-label">Total Contributions (Total Basis)</span>
+                    <span id="stat-total-contribs" class="widget-value">$0.00</span>
+                </div>
+                <div class="widget-card">
+                    <span class="widget-label">Current Unrecovered Basis</span>
+                    <span id="stat-unrecovered-basis" class="widget-value">$0.00</span>
+                </div>
+                <div class="widget-card">
+                    <span class="widget-label">Excludable Basis Recovered</span>
+                    <span id="stat-recovered-basis" class="widget-value">$0.00</span>
+                </div>
+            </div>
+
+            <!-- State Tax Rule Switcher & Details -->
+            <div class="card selector-card">
+                <div class="state-switcher-container">
+                    <span class="switcher-title">Apply State Taxation Engine:</span>
+                    <div class="state-tabs">
+                        <button id="tab-nj" class="state-tab active" data-state="NJ">New Jersey (NJ)</button>
+                        <button id="tab-pa" class="state-tab" data-state="PA">Pennsylvania (PA)</button>
+                        <button id="tab-ma" class="state-tab" data-state="MA">Massachusetts (MA)</button>
+                    </div>
+                </div>
+                <div class="state-rules-panel">
+                    <div id="rule-desc-nj" class="state-rule-desc">
+                        <strong>New Jersey Pro-Rata Model (Worksheet C):</strong> Withdrawals are tax-free in the ratio of your unrecovered state basis to the total value of all IRAs. Under-reporting basis triggers double taxation.
+                    </div>
+                    <div id="rule-desc-pa" class="state-rule-desc hidden">
+                        <strong>Pennsylvania Cost Recovery Model:</strong> Employee deferrals are taxed upon contribution. Qualified distributions after age 59½ are 100% tax-free. Non-qualified early distributions recover basis first (100% tax-free FIFO) until basis is depleted.
+                    </div>
+                    <div id="rule-desc-ma" class="state-rule-desc hidden">
+                        <strong>Massachusetts Pro-Rata Model:</strong> Traditional IRA contributions are non-deductible (creating basis). Withdrawals recover basis pro-rata based on the ratio of MA basis to account value.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculated Ledger Table -->
+            <div class="card ledger-card">
+                <div class="ledger-header">
+                    <h3 class="card-title">Roll-Forward Basis Ledger Table</h3>
+                    <span class="badge info-badge">State Engine: <span id="active-state-label">NJ</span></span>
+                </div>
+                <div class="table-scroll-container">
+                    <table id="ledger-table" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Starting Basis</th>
+                                <th>Contributions</th>
+                                <th>Total Withdrawn</th>
+                                <th>Dec 31 Value</th>
+                                <th class="highlight-column">Excludable (Basis)</th>
+                                <th>Taxable Income</th>
+                                <th>Ending Basis</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">Select an account to view basis ledger.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Raw Transaction Log (Manage/Delete) -->
+            <div class="card">
+                <h3 class="card-title">Raw Transaction Ledger (Auditable Log)</h3>
+                <div class="table-scroll-container">
+                    <table id="transactions-table" class="data-table small-table">
+                        <thead>
+                            <tr>
+                                <th>Index</th>
+                                <th>Year</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Dec 31 Value</th>
+                                <th>Note / Document Citation</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="7" class="text-center text-muted">No raw transactions logged.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="tracker.js"></script>
+</body>
+</html>
